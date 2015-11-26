@@ -271,17 +271,21 @@ InfluxDB.prototype._prepareValues = function (series) {
   _.forEach(series, function (values, seriesName) {
     _.each(values, function (points) {
       var line = seriesName.replace(/ /g, '\\ ').replace(/,/g, '\\,')
-      if (points[1] && _.isObject(points[1]) && _.keys(points[1]).length > 0) {
-        line += ',' + this._createKeyTagString(points[1])
+
+      var value = points[0]
+      var tag = points[1]
+
+      if (tag && _.isObject(tag) && _.keys(tag).length > 0) {
+        line += ',' + this._createKeyTagString(tag)
       }
 
-      if (_.isObject(points[0])) {
+      if (_.isObject(value)) {
         var timestamp = null
-        if (points[0].time) {
-          timestamp = points[0].time
-          delete (points[0].time)
+        if (value.time) {
+          timestamp = value.time
+          delete (value.time)
         }
-        line += ' ' + this._createKeyValueString(points[0])
+        line += ' ' + this._createKeyValueString(value)
         if (timestamp) {
           if (timestamp instanceof Date) {
             line += ' ' + timestamp.getTime()
@@ -290,10 +294,10 @@ InfluxDB.prototype._prepareValues = function (series) {
           }
         }
       } else {
-        if (typeof points[0] === 'string') {
-          line += ' value="' + points[0] + '"'
+        if (typeof value === 'string') {
+          line += ' value="' + value + '"'
         } else {
-          line += ' value=' + points[0]
+          line += ' value=' + value
         }
       }
       output.push(line)
