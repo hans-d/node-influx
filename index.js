@@ -316,7 +316,7 @@ InfluxDB.prototype._prepareValues = function (series) {
       var timestamp = null
       if (value.time) {
         timestamp = value.time
-        delete (value.time
+        delete (value.time)
       }
       line += ' ' + this._createKeyValueString(value)
       if (timestamp) {
