@@ -279,27 +279,28 @@ InfluxDB.prototype._prepareValues = function (series) {
         line += ',' + this._createKeyTagString(tag)
       }
 
-      if (_.isObject(value)) {
-        var timestamp = null
-        if (value.time) {
-          timestamp = value.time
-          delete (value.time)
-        }
-        line += ' ' + this._createKeyValueString(value)
-        if (timestamp) {
-          if (timestamp instanceof Date) {
-            line += ' ' + timestamp.getTime()
-          } else {
-            line += ' ' + timestamp
-          }
-        }
-      } else {
-        if (typeof value === 'string') {
-          line += ' value="' + value + '"'
+
+      if (!_.isObject(value)) {
+         value = { value: value }
+         if (options.type) {
+           value.type = options.type
+         }
+      }
+
+      var timestamp = null
+      if (value.time) {
+        timestamp = value.time
+        delete (value.time
+      }
+      line += ' ' + this._createKeyValueString(value)
+      if (timestamp) {
+        if (timestamp instanceof Date) {
+          line += ' ' + timestamp.getTime()
         } else {
-          line += ' value=' + value
+          line += ' ' + timestamp
         }
       }
+
       output.push(line)
     }, this)
   }, this)
