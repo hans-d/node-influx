@@ -246,14 +246,40 @@ InfluxDB.prototype.dropUser = function (username, callback) {
   this.queryDB('drop user "' + username + '"', callback)
 }
 
+InfluxDB.prototype._formatNumber = function (number, asInt) {
+
+  if (asInt) {
+    return number.toFixed(0) + 'i'
+  }
+  var looksInt = (typeof(value) == 'number') && (parseInt(value, 10) == parseFloat(value))
+  return '' + number + looksInt ? '.0' : ''
+}
+
 InfluxDB.prototype._createKeyValueString = function (object) {
+
   return _.map(object, function (value, key) {
-    if (typeof value === 'string') {
-      return key + '="' + value + '"'
-    } else {
-      return key + '=' + value
+    return this._formatKeyValueString(key, value)
+  }, this).join(',')
+}
+
+InfluxDB.prototype._formatKeyValueString = function (key, value) {
+  if (_.isObject(value)) {
+    if (value.type === 'int') {
+      return key + '=' + this._formatNumber(value.value, true)
     }
-  }).join(',')
+    return this._formatKeyValueString(key, value.value)
+  } else {
+    switch (typeof value) {
+      case 'string':
+        return key + '="' + value + '"'
+        break
+      case 'number':
+        return key + '=' + this._formatNumber(value)
+        break
+      default:
+        return key + '=' + value
+    }
+  }
 }
 
 InfluxDB.prototype._createKeyTagString = function (object) {
